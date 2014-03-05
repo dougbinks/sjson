@@ -19,6 +19,9 @@
 
   based on cJSON written by Dave Gamble */
 
+#include "RuntimeSourceDependency.h"
+RUNTIME_COMPILER_SOURCEDEPENDENCY;
+
 #include <stdint.h>
 
 #ifndef sJSON__h

@@ -2,6 +2,9 @@
 #ifndef __EASTL_MURMURHASH_H__
 #define __EASTL_MURMURHASH_H__
 
+#include "RuntimeSourceDependency.h"
+RUNTIME_COMPILER_SOURCEDEPENDENCY;
+
 #include <stdint.h>
 
 // this is the MurmurHash 3 (based on r136)
