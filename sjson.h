@@ -19,7 +19,7 @@
 
   based on cJSON written by Dave Gamble */
 
-#include "eastl/types.h"
+#include <stdint.h>
 
 #ifndef sJSON__h
 #define sJSON__h
@@ -35,7 +35,7 @@
 	
 #define sJSON_IsReference 256
 
-#include "eastl/extra/murmurhash.h"
+#include "murmurhash.h"
 
 //#define WRITE_SUPPORT_ENABLED
 
@@ -87,7 +87,7 @@ extern sJSON *sJSONparse(const char *value);
 extern void   sJSONdelete(sJSON *c);
 
 /* Returns the number of items in an array (or object). */
-extern uint_t sJSONgetArraySize(sJSON *array);
+extern uint32_t sJSONgetArraySize(sJSON *array);
 /* Retrieve item number "item" from array "array". Returns NULL if unsuccessful. */
 extern sJSON *sJSONgetArrayItem(sJSON *array,int item);
 /* Get item "string" from object. Case SENSITIVE! */

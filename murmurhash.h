@@ -2,7 +2,7 @@
 #ifndef __EASTL_MURMURHASH_H__
 #define __EASTL_MURMURHASH_H__
 
-#include "eastl/types.h"
+#include <stdint.h>
 
 // this is the MurmurHash 3 (based on r136)
 // http://code.google.com/p/smhasher/
@@ -13,7 +13,7 @@
 // non-native version will be less than optimal.
 
 #include <stdlib.h>
-#include "eastl/string.h"
+#include <string.h>
 
 namespace eastl {
 
@@ -28,7 +28,7 @@ void murmurHash_x64_128( const uint8_t *data, uint32_t len, void *out);
 //on 64bit systems cityhash is reported to be much faster for 64bit hash values!
 
 inline uint32_t murmurString(const char *buffer) {
-   uint32_t len = strlen(buffer);
+   uint32_t len = (uint32_t)strlen(buffer);
    return murmurHash((uint8_t*)buffer, len);
 }
 

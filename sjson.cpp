@@ -692,7 +692,7 @@ static const char *parse_object(sJSON *item,const char *value) {
 #endif
 
 /* Get Array size/item / object item. */
-uint_t sJSONgetArraySize(sJSON *array) {
+uint32_t sJSONgetArraySize(sJSON *array) {
    sJSON *c=array->child;
    int i=0;
    while(c) {
