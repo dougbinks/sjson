@@ -19,6 +19,12 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 
+Welcome to sJSON based on cJSON
+-------------------------------
+
+sjson: - no {} needed around the whole file - "=" is allowed instead of ":" - quotes around the key are optional - commas after values are optional
+
+The rest of the api-docu from cJSON:
 
 Welcome to cJSON.
 -----------------
