@@ -1,4 +1,6 @@
 /*
+  Copyright (c) 2009 Dave Gamble
+ 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
@@ -16,13 +18,14 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
+*/
 
-  based on cJSON written by Dave Gamble */
-
-#include <stdint.h>
+/* sJSON is based on cJSON written by Dave Gamble */
 
 #ifndef sJSON__h
 #define sJSON__h
+
+#include <stdint.h>
 
 /* sJSON Types: */
 #define sJSON_False 0
