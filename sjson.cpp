@@ -43,18 +43,22 @@ static const char *ep;
 
 const char *sJSONgetErrorPtr() {return ep;}
 
-#ifdef WRITE_SUPPORT_ENABLED
-static int sJSON_strcasecmp(const char *s1,const char *s2) {
-   if (!s1)
-      return (s1 == s2) ? 0 : 1;
-   if (!s2)
-      return 1;
-   for(; tolower(*s1) == tolower(*s2); ++s1, ++s2)
-      if(*s1 == 0)
-         return 0;
-	return tolower(*(const unsigned char *)s1) - tolower(*(const unsigned char *)s2);
+inline static int compareNames( const sJSON* c, eastl::FixedMurmurHash hash )
+{
+    if( c->nameHash == hash.mHash )
+    {
+       if( !c->nameString && !hash.mStr )
+       {
+          return 0;
+       }
+       if( !hash.mStr )
+       {
+          return 1;
+       }
+        return strcmp( c->nameString, hash.mStr );
+    }
+    return 1;
 }
-#endif
 
 static void *(*sJSON_malloc)(size_t sz) = malloc;
 static void (*sJSON_free)(void *ptr) = free;
@@ -98,10 +102,8 @@ void sJSONdelete(sJSON *c) {
          sJSONdelete(c->child);
       if (!(c->type&sJSON_IsReference) && c->valueString)
          sJSON_free(c->valueString);
-#ifdef WRITE_SUPPORT_ENABLED
       if (c->nameString)
          sJSON_free(c->nameString);
-#endif
 		sJSON_free(c);
 		c=next;
 	}
@@ -305,11 +307,10 @@ static char *print_string(sJSON *item)	{
 static const char *parse_value(sJSON *item,const char *value);
 static const char *parse_array(sJSON *item,const char *value);
 static const char *parse_object(sJSON *item,const char *value);
-#ifdef WRITE_SUPPORT_ENABLED
-   static char *print_value(sJSON *item,int depth,int fmt);
-   static char *print_array(sJSON *item,int depth,int fmt);
-   static char *print_object(sJSON *item,int depth,int fmt);
-#endif
+static char *print_value(sJSON *item,int depth,int fmt);
+static char *print_array(sJSON *item,int depth,int fmt);
+static char *print_object(sJSON *item,int depth,int fmt);
+
 
 /* Utility to jump whitespace and cr/lf */
 static const char *skip(const char *in) {
@@ -365,15 +366,14 @@ sJSON *sJSONparse(const char *value) {
 	return c;
 }
 
-#ifdef WRITE_SUPPORT_ENABLED
-   /* Render a sJSON item/entity/structure to text. */
-   char *sJSONprint(sJSON *item)				{
-      return print_value(item,0,1);
-   }
-   char *sJSONprintUnformatted(sJSON *item)	{
-      return print_value(item,0,0);
-   }
-#endif
+/* Render a sJSON item/entity/structure to text. */
+char *sJSONprint(sJSON *item)				{
+   return print_value(item,0,1);
+}
+char *sJSONprintUnformatted(sJSON *item)	{
+   return print_value(item,0,0);
+}
+
 
 /* Parser core - when encountering text, process appropriately. */
 static const char *parse_value(sJSON *item,const char *value) {
@@ -406,24 +406,23 @@ static const char *parse_value(sJSON *item,const char *value) {
    return 0;	/* failure. */
 }
 
-#ifdef WRITE_SUPPORT_ENABLED
-   /* Render a value to text. */
-   static char *print_value(sJSON *item,int depth,int fmt) {
-      char *out=0;
-      if (!item)
-         return 0;
-      switch ((item->type)&255) {
-         case sJSON_NULL:   out=sJSON_strdup("null");	break;
-         case sJSON_False:  out=sJSON_strdup("false");break;
-         case sJSON_True:	 out=sJSON_strdup("true"); break;
-         case sJSON_Number: out=print_number(item);break;
-         case sJSON_String: out=print_string(item);break;
-         case sJSON_Array:  out=print_array(item,depth,fmt);break;
-         case sJSON_Object: out=print_object(item,depth,fmt);break;
-      }
-      return out;
+/* Render a value to text. */
+static char *print_value(sJSON *item,int depth,int fmt) {
+   char *out=0;
+   if (!item)
+      return 0;
+   switch ((item->type)&255) {
+      case sJSON_NULL:   out=sJSON_strdup("null");	break;
+      case sJSON_False:  out=sJSON_strdup("false");break;
+      case sJSON_True:	 out=sJSON_strdup("true"); break;
+      case sJSON_Number: out=print_number(item);break;
+      case sJSON_String: out=print_string(item);break;
+      case sJSON_Array:  out=print_array(item,depth,fmt);break;
+      case sJSON_Object: out=print_object(item,depth,fmt);break;
    }
-#endif
+   return out;
+}
+
 
 /* Build an array from input text. */
 static const char *parse_array(sJSON *item,const char *value) {
@@ -466,74 +465,72 @@ static const char *parse_array(sJSON *item,const char *value) {
    return 0;
 }
 
-#ifdef WRITE_SUPPORT_ENABLED
-   /* Render an array to text */
-   static char *print_array(sJSON *item,int depth,int fmt) {
-      char **entries;
-      char *out=0,*ptr,*ret;
-      int len=5;
-      sJSON *child=item->child;
-      int numentries=0,i=0,fail=0;
+/* Render an array to text */
+static char *print_array(sJSON *item,int depth,int fmt) {
+   char **entries;
+   char *out=0,*ptr,*ret;
+   int len=5;
+   sJSON *child=item->child;
+   int numentries=0,i=0,fail=0;
 
-      /* How many entries in the array? */
-      while (child) {
-         numentries++;
-         child=child->next;
-      }
-      /* Allocate an array to hold the values for each */
-      entries=(char**)sJSON_malloc(numentries*sizeof(char*));
-      if (!entries)
-         return 0;
-      memset(entries,0,numentries*sizeof(char*));
-      /* Retrieve all the results: */
-      child=item->child;
-      while (child && !fail) {
-         ret=print_value(child,depth+1,fmt);
-         entries[i++]=ret;
-         if (ret)
-            len+=strlen(ret)+2+(fmt?1:0);
-         else
-            fail=1;
-         child=child->next;
-      }
-
-      /* If we didn't fail, try to malloc the output string */
-      if (!fail)
-         out=(char*)sJSON_malloc(len);
-      /* If that fails, we fail. */
-      if (!out)
-         fail=1;
-
-      /* Handle failure. */
-      if (fail) {
-         for (i=0;i<numentries;i++)
-            if (entries[i])
-               sJSON_free(entries[i]);
-         sJSON_free(entries);
-         return 0;
-      }
-
-      /* Compose the output array. */
-      *out='[';
-      ptr=out+1;
-      *ptr=0;
-      for (i=0;i<numentries;i++) {
-         strcpy(ptr,entries[i]);
-         ptr+=strlen(entries[i]);
-         if (i!=numentries-1) {
-            *ptr++=',';
-            if(fmt)
-               *ptr++=' ';
-            *ptr=0;
-         }
-         sJSON_free(entries[i]);
-      }
-      sJSON_free(entries);
-      *ptr++=']';
-      *ptr++=0;
-      return out;
+   /* How many entries in the array? */
+   while (child) {
+      numentries++;
+      child=child->next;
    }
-#endif
+   /* Allocate an array to hold the values for each */
+   entries=(char**)sJSON_malloc(numentries*sizeof(char*));
+   if (!entries)
+      return 0;
+   memset(entries,0,numentries*sizeof(char*));
+   /* Retrieve all the results: */
+   child=item->child;
+   while (child && !fail) {
+      ret=print_value(child,depth+1,fmt);
+      entries[i++]=ret;
+      if (ret)
+         len+=strlen(ret)+2+(fmt?1:0);
+      else
+         fail=1;
+      child=child->next;
+   }
+
+   /* If we didn't fail, try to malloc the output string */
+   if (!fail)
+      out=(char*)sJSON_malloc(len);
+   /* If that fails, we fail. */
+   if (!out)
+      fail=1;
+
+   /* Handle failure. */
+   if (fail) {
+      for (i=0;i<numentries;i++)
+         if (entries[i])
+            sJSON_free(entries[i]);
+      sJSON_free(entries);
+      return 0;
+   }
+
+   /* Compose the output array. */
+   *out='[';
+   ptr=out+1;
+   *ptr=0;
+   for (i=0;i<numentries;i++) {
+      strcpy(ptr,entries[i]);
+      ptr+=strlen(entries[i]);
+      if (i!=numentries-1) {
+         *ptr++=',';
+         if(fmt)
+            *ptr++=' ';
+         *ptr=0;
+      }
+      sJSON_free(entries[i]);
+   }
+   sJSON_free(entries);
+   *ptr++=']';
+   *ptr++=0;
+   return out;
+}
 
 /* Build an object from the text. */
 static const char *parse_object(sJSON *item,const char *value) {
@@ -555,9 +552,7 @@ static const char *parse_object(sJSON *item,const char *value) {
    if (!value)
       return 0;
    child->nameHash = eastl::murmurString(child->valueString);
-#ifdef WRITE_SUPPORT_ENABLED
    child->nameString = child->valueString;
-#endif
    child->valueString = 0;
    if ((*value != ':') && (*value != '=')) {
       ep=value;      /* fail! */
@@ -581,9 +576,7 @@ static const char *parse_object(sJSON *item,const char *value) {
       if (!value)
          return 0;
       child->nameHash = eastl::murmurString(child->valueString);
-#ifdef WRITE_SUPPORT_ENABLED
       child->nameString=child->valueString;
-#endif
       child->valueString=0;
       if ((*value!=':') && (*value!='=')) {
          ep=value;   	/* fail! */
@@ -602,96 +595,94 @@ static const char *parse_object(sJSON *item,const char *value) {
    return 0;	/* malformed. */
 }
 
-#ifdef WRITE_SUPPORT_ENABLED
-   /* Render an object to text. */
-   static char *print_object(sJSON *item,int depth,int fmt) {
-      char **entries=0, **names=0;
-      char *out=0, *ptr, *ret, *str;
-      int len=7, i=0, j;
-      sJSON *child = item->child;
-      int numentries=0, fail=0;
-      /* Count the number of entries. */
-      while (child) {
-         numentries++;
-         child=child->next;
-      }
-      /* Allocate space for the names and the objects */
-      entries=(char**)sJSON_malloc(numentries*sizeof(char*));
-      if (!entries)
-         return 0;
-      names=(char**)sJSON_malloc(numentries*sizeof(char*));
-      if (!names) {
-         sJSON_free(entries);
-         return 0;
-      }
-      memset(entries,0,sizeof(char*)*numentries);
-      memset(names,0,sizeof(char*)*numentries);
+/* Render an object to text. */
+static char *print_object(sJSON *item,int depth,int fmt) {
+   char **entries=0, **names=0;
+   char *out=0, *ptr, *ret, *str;
+   int len=7, i=0, j;
+   sJSON *child = item->child;
+   int numentries=0, fail=0;
+   /* Count the number of entries. */
+   while (child) {
+      numentries++;
+      child=child->next;
+   }
+   /* Allocate space for the names and the objects */
+   entries=(char**)sJSON_malloc(numentries*sizeof(char*));
+   if (!entries)
+      return 0;
+   names=(char**)sJSON_malloc(numentries*sizeof(char*));
+   if (!names) {
+      sJSON_free(entries);
+      return 0;
+   }
+   memset(entries,0,sizeof(char*)*numentries);
+   memset(names,0,sizeof(char*)*numentries);
 
-      /* Collect all the results into our arrays: */
-      child=item->child;depth++;
-      if (fmt)
-         len+=depth;
-      while (child) {
-         names[i] = str = print_string_ptr(child->nameString);
-         entries[i++] = ret = print_value(child,depth,fmt);
-         if (str && ret)
-            len+=strlen(ret)+strlen(str)+2+(fmt?2+depth:0);
-         else
-            fail=1;
-         child=child->next;
-      }
-
-      /* Try to allocate the output string */
-      if (!fail)
-         out=(char*)sJSON_malloc(len);
-      if (!out)
+   /* Collect all the results into our arrays: */
+   child=item->child;depth++;
+   if (fmt)
+      len+=depth;
+   while (child) {
+      names[i] = str = print_string_ptr(child->nameString);
+      entries[i++] = ret = print_value(child,depth,fmt);
+      if (str && ret)
+         len+=strlen(ret)+strlen(str)+2+(fmt?2+depth:0);
+      else
          fail=1;
+      child=child->next;
+   }
 
-      /* Handle failure */
-      if (fail) {
-         for (i=0;i<numentries;i++) {
-            if (names[i])
-               sJSON_free(names[i]);
-            if (entries[i])
-               sJSON_free(entries[i]);
-         }
-         sJSON_free(names);
-         sJSON_free(entries);
-         return 0;
-      }
+   /* Try to allocate the output string */
+   if (!fail)
+      out=(char*)sJSON_malloc(len);
+   if (!out)
+      fail=1;
 
-      /* Compose the output: */
-      *out='{';ptr=out+1;if (fmt)*ptr++='\n';*ptr=0;
+   /* Handle failure */
+   if (fail) {
       for (i=0;i<numentries;i++) {
-         if (fmt)
-            for (j=0;j<depth;j++)
-               *ptr++='\t';
-         strcpy(ptr,names[i]);
-         ptr+=strlen(names[i]);
-         *ptr++=':';
-         if (fmt)
-            *ptr++='\t';
-         strcpy(ptr,entries[i]);
-         ptr+=strlen(entries[i]);
-         if (i!=numentries-1)
-            *ptr++=',';
-         if (fmt)
-            *ptr++='\n';
-         *ptr=0;
-         sJSON_free(names[i]);
-         sJSON_free(entries[i]);
+         if (names[i])
+            sJSON_free(names[i]);
+         if (entries[i])
+            sJSON_free(entries[i]);
       }
-
       sJSON_free(names);
       sJSON_free(entries);
-      if (fmt)
-         for (i=0;i<depth-1;i++)
-            *ptr++='\t';
-      *ptr++='}';
-      *ptr++=0;
-      return out;
+      return 0;
    }
-#endif
+
+   /* Compose the output: */
+   *out='{';ptr=out+1;if (fmt)*ptr++='\n';*ptr=0;
+   for (i=0;i<numentries;i++) {
+      if (fmt)
+         for (j=0;j<depth;j++)
+            *ptr++='\t';
+      strcpy(ptr,names[i]);
+      ptr+=strlen(names[i]);
+      *ptr++=':';
+      if (fmt)
+         *ptr++='\t';
+      strcpy(ptr,entries[i]);
+      ptr+=strlen(entries[i]);
+      if (i!=numentries-1)
+         *ptr++=',';
+      if (fmt)
+         *ptr++='\n';
+      *ptr=0;
+      sJSON_free(names[i]);
+      sJSON_free(entries[i]);
+   }
+
+   sJSON_free(names);
+   sJSON_free(entries);
+   if (fmt)
+      for (i=0;i<depth-1;i++)
+         *ptr++='\t';
+   *ptr++='}';
+   *ptr++=0;
+   return out;
+}
 
 /* Get Array size/item / object item. */
 uint32_t sJSONgetArraySize(sJSON *array) {
@@ -713,17 +704,11 @@ sJSON *sJSONgetArrayItem(sJSON *array,int item) {
 }
 sJSON *sJSONgetObjectItem(sJSON *object, eastl::FixedMurmurHash stringHash) {
    sJSON *c=object->child;
-//   while (c && sJSON_strcasecmp(c->nameString,string))
-   while(c && (c->nameHash != stringHash))
+   while(c && compareNames( c, stringHash) )
       c=c->next;
    return c;
 }
-sJSON *sJSONgetObjectItem(sJSON *object, uint32_t stringHash) {
-   sJSON *c=object->child;
-   while(c && (c->nameHash != stringHash))
-      c=c->next;
-   return c;
-}
+
 
 /* Utility for array list handling. */
 static void suffix_object(sJSON *prev, sJSON *item) {
@@ -736,9 +721,7 @@ static sJSON *create_reference(sJSON *item) {
    if (!ref)
       return 0;
    memcpy(ref,item,sizeof(sJSON));
-#ifdef WRITE_SUPPORT_ENABLED
    ref->nameString = 0;
-#endif
    ref->nameHash = 0;
    ref->type |= sJSON_IsReference;
    ref->next = ref->prev = 0;
@@ -761,11 +744,9 @@ void   sJSONaddItemToArray(sJSON *array, sJSON *item) {
 void   sJSONaddItemToObject(sJSON *object, const char *string, sJSON *item)	{
    if (!item)
       return;
-#ifdef WRITE_SUPPORT_ENABLED
    if (item->nameString)
       sJSON_free(item->nameString);
    item->nameString=sJSON_strdup(string);
-#endif
    item->nameHash = eastl::murmurString(string);
    sJSONaddItemToArray(object,item);
 }
@@ -799,9 +780,8 @@ void   sJSONdeleteItemFromArray(sJSON *array,int which) {
 sJSON *sJSONdetachItemFromObject(sJSON *object,const char *string) {
    int i=0;
    sJSON *c=object->child;
-   uint32_t stringHash = eastl::murmurString(string);
-//   while (c && sJSON_strcasecmp(c->nameString,string)) {
-   while(c && (c->nameHash != stringHash)) {
+   eastl::FixedMurmurHash stringHash(string);
+   while(c && compareNames( c, stringHash ) ) {
       i++;
       c=c->next;
    }
@@ -837,22 +817,18 @@ void   sJSONreplaceItemInArray(sJSON *array,int which,sJSON *newitem) {
 void   sJSONreplaceItemInObject(sJSON *object,const char *string,sJSON *newitem) {
    int i=0;
    sJSON *c=object->child;
-   uint32_t stringHash = eastl::murmurString(string);
-//   while(c && sJSON_strcasecmp(c->nameString,string)) {
-   while(c && (c->nameHash != stringHash)) {
+   eastl::FixedMurmurHash stringHash(string);
+   while(c && compareNames( c, stringHash ) ) {
       i++;
       c=c->next;
    }
    if(c) {
-#ifdef WRITE_SUPPORT_ENABLED
       newitem->nameString=sJSON_strdup(string);
-#endif
       newitem->nameHash = stringHash;
       sJSONreplaceItemInArray(object,i,newitem);
    }
 }
 
-#ifdef WRITE_SUPPORT_ENABLED
 /* Create basic types: */
 sJSON *sJSONcreateNull()					{sJSON *item=sJSON_New_Item();if(item)item->type=sJSON_NULL;return item;}
 sJSON *sJSONcreateTrue()					{sJSON *item=sJSON_New_Item();if(item)item->type=sJSON_True;return item;}
@@ -868,4 +844,3 @@ sJSON *sJSONcreateIntArray(int *numbers,int count)				 {int i;sJSON *n=0,*p=0,*a
 sJSON *sJSONcreateFloatArray(float *numbers,int count)		 {int i;sJSON *n=0,*p=0,*a=sJSONcreateArray();for(i=0;a && i<count;i++){n=sJSONcreateNumber(numbers[i]);if(!i)a->child=n;else suffix_object(p,n);p=n;}return a;}
 sJSON *sJSONcreateDoubleArray(double *numbers,int count)		 {int i;sJSON *n=0,*p=0,*a=sJSONcreateArray();for(i=0;a && i<count;i++){n=sJSONcreateNumber(numbers[i]);if(!i)a->child=n;else suffix_object(p,n);p=n;}return a;}
 sJSON *sJSONcreateStringArray(const char **strings,int count){int i;sJSON *n=0,*p=0,*a=sJSONcreateArray();for(i=0;a && i<count;i++){n=sJSONcreateString(strings[i]);if(!i)a->child=n;else suffix_object(p,n);p=n;}return a;}
-#endif

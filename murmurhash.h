@@ -66,9 +66,10 @@ inline uint32_t murmurString(const char *buffer) {
                         k1 *= c2;            \
                         h1 ^= k1;
 
-class FixedMurmurHash {
+struct FixedMurmurHash {
    uint32_t mHash;
-public:
+   const char* mStr;
+
    operator const uint32_t&() const {
       return mHash;
    }
@@ -80,13 +81,13 @@ public:
 
    FixedMurmurHash(ConstCharWrapper str)  //for dynamic strings
       : mHash(murmurString(str.mStr))
+      , mStr(str.mStr)
    {}
 
-   FixedMurmurHash(uint32_t hashValue)
-      : mHash(hashValue)
-   {}
 
-   FixedMurmurHash(const char (&str)[2]) {
+   FixedMurmurHash(const char (&str)[2])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -101,7 +102,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[3]) {
+   FixedMurmurHash(const char (&str)[3])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -116,7 +119,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[4]) {
+   FixedMurmurHash(const char (&str)[4])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -131,7 +136,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[5]) {
+   FixedMurmurHash(const char (&str)[5])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -146,7 +153,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[6]) {
+   FixedMurmurHash(const char (&str)[6])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -162,7 +171,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[7]) {
+   FixedMurmurHash(const char (&str)[7])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -178,7 +189,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[8]) {
+   FixedMurmurHash(const char (&str)[8])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -194,7 +207,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[9]) {
+   FixedMurmurHash(const char (&str)[9])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -210,7 +225,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[10]) {
+   FixedMurmurHash(const char (&str)[10])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -227,7 +244,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[11]) {
+   FixedMurmurHash(const char (&str)[11])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -244,7 +263,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[12]) {
+   FixedMurmurHash(const char (&str)[12])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -261,7 +282,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[13]) {
+   FixedMurmurHash(const char (&str)[13])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -278,7 +301,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[14]) {
+   FixedMurmurHash(const char (&str)[14])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -296,7 +321,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[15]) {
+   FixedMurmurHash(const char (&str)[15])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -314,7 +341,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[16]) {
+   FixedMurmurHash(const char (&str)[16])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -332,7 +361,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[17]) {
+   FixedMurmurHash(const char (&str)[17])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -350,7 +381,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[18]) {
+   FixedMurmurHash(const char (&str)[18])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -369,7 +402,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[19]) {
+   FixedMurmurHash(const char (&str)[19])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -388,7 +423,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[20]) {
+   FixedMurmurHash(const char (&str)[20])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -407,7 +444,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[21]) {
+   FixedMurmurHash(const char (&str)[21])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -426,7 +465,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[22]) {
+   FixedMurmurHash(const char (&str)[22])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -446,7 +487,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[23]) {
+   FixedMurmurHash(const char (&str)[23])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -466,7 +509,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[24]) {
+   FixedMurmurHash(const char (&str)[24])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -486,7 +531,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[25]) {
+   FixedMurmurHash(const char (&str)[25])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -506,7 +553,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[26]) {
+   FixedMurmurHash(const char (&str)[26])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -527,7 +576,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[27]) {
+   FixedMurmurHash(const char (&str)[27])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -548,7 +599,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[28]) {
+   FixedMurmurHash(const char (&str)[28])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -569,7 +622,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[29]) {
+   FixedMurmurHash(const char (&str)[29])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -590,7 +645,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[30]) {
+   FixedMurmurHash(const char (&str)[30])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -613,7 +670,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[31]) {
+   FixedMurmurHash(const char (&str)[31])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -636,7 +695,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[32]) {
+   FixedMurmurHash(const char (&str)[32])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -658,7 +719,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[33]) {
+   FixedMurmurHash(const char (&str)[33])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -680,7 +743,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[34]) {
+   FixedMurmurHash(const char (&str)[34])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -703,7 +768,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[35]) {
+   FixedMurmurHash(const char (&str)[35])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -726,7 +793,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[36]) {
+   FixedMurmurHash(const char (&str)[36])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -749,7 +818,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[37]) {
+   FixedMurmurHash(const char (&str)[37])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -772,7 +843,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[38]) {
+   FixedMurmurHash(const char (&str)[38])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -796,7 +869,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[39]) {
+   FixedMurmurHash(const char (&str)[39])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -820,7 +895,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[40]) {
+   FixedMurmurHash(const char (&str)[40])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -844,7 +921,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[41]) {
+   FixedMurmurHash(const char (&str)[41])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -868,7 +947,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[42]) {
+   FixedMurmurHash(const char (&str)[42])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -893,7 +974,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[43]) {
+   FixedMurmurHash(const char (&str)[43])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -918,7 +1001,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[44]) {
+   FixedMurmurHash(const char (&str)[44])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -943,7 +1028,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[45]) {
+   FixedMurmurHash(const char (&str)[45])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -968,7 +1055,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[46]) {
+   FixedMurmurHash(const char (&str)[46])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -994,7 +1083,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[47]) {
+   FixedMurmurHash(const char (&str)[47])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -1020,7 +1111,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[48]) {
+   FixedMurmurHash(const char (&str)[48])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -1046,7 +1139,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[49]) {
+   FixedMurmurHash(const char (&str)[49])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;
@@ -1072,7 +1167,9 @@ public:
       h1 ^= h1 >> 16;
       mHash = h1;
    }
-   FixedMurmurHash(const char (&str)[50]) {
+   FixedMurmurHash(const char (&str)[50])
+    : mStr(str)
+   {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
       uint32_t c1 = 0xcc9e2d51;

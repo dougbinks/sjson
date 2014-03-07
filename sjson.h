@@ -43,14 +43,6 @@ RUNTIME_COMPILER_SOURCEDEPENDENCY;
 
 #include "murmurhash.h"
 
-//#define WRITE_SUPPORT_ENABLED
-
-//save names as strings in debugmode
-#ifdef _DEBUG
-   #ifndef WRITE_SUPPORT_ENABLED
-      #define WRITE_SUPPORT_ENABLED
-   #endif
-#endif
 
 /* The sJSON structure: */
 typedef struct sJSON {
@@ -64,10 +56,8 @@ typedef struct sJSON {
    int valueInt;				/* The item's number, if type==sJSON_Number */
    double valueDouble;		/* The item's number, if type==sJSON_Number */
 
-#ifdef WRITE_SUPPORT_ENABLED
    char *nameString;			/* The item's name string, if this item is the child of, or is
                               in the list of subitems of an object. */
-#endif
    uint32_t nameHash;
 } sJSON;
 
@@ -83,12 +73,10 @@ extern void sJSONinitHooks(sJSON_Hooks* hooks);
 /* Supply a block of JSON, and this returns a sJSON object you can interrogate. Call sJSON_Delete when finished. */
 extern sJSON *sJSONparse(const char *value);
 
-#ifdef WRITE_SUPPORT_ENABLED
-   /* Render a sJSON entity to text for transfer/storage. Free the char* when finished. */
-   extern char  *sJSONprint(sJSON *item);
-   /* Render a sJSON entity to text for transfer/storage without any formatting. Free the char* when finished. */
-   extern char  *sJSONprintUnformatted(sJSON *item);
-#endif
+/* Render a sJSON entity to text for transfer/storage. Free the char* when finished. */
+extern char  *sJSONprint(sJSON *item);
+/* Render a sJSON entity to text for transfer/storage without any formatting. Free the char* when finished. */
+extern char  *sJSONprintUnformatted(sJSON *item);
 /* Delete a sJSON entity and all subentities. */
 extern void   sJSONdelete(sJSON *c);
 
@@ -104,24 +92,23 @@ extern sJSON *sJSONgetObjectItem(sJSON *object, uint32_t stringHash);
 /* For analysing failed parses. This returns a pointer to the parse error. You'll probably need to look a
    few chars back to make sense of it. Defined when sJSON_Parse() returns 0. 0 when sJSON_Parse() succeeds. */
 extern const char *sJSONgetErrorPtr();
-	
-#ifdef WRITE_SUPPORT_ENABLED
-   /* These calls create a sJSON item of the appropriate type. */
-   extern sJSON *sJSONcreateNull();
-   extern sJSON *sJSONcreateTrue();
-   extern sJSON *sJSONcreateFalse();
-   extern sJSON *sJSONcreateBool(int b);
-   extern sJSON *sJSONcreateNumber(double num);
-   extern sJSON *sJSONcreateString(const char *string);
-   extern sJSON *sJSONcreateArray();
-   extern sJSON *sJSONcreateObject();
 
-   /* These utilities create an Array of count items. */
-   extern sJSON *sJSONcreateIntArray(int *numbers,int count);
-   extern sJSON *sJSONcreateFloatArray(float *numbers,int count);
-   extern sJSON *sJSONcreateDoubleArray(double *numbers,int count);
-   extern sJSON *sJSONcreateStringArray(const char **strings,int count);
-#endif
+/* These calls create a sJSON item of the appropriate type. */
+extern sJSON *sJSONcreateNull();
+extern sJSON *sJSONcreateTrue();
+extern sJSON *sJSONcreateFalse();
+extern sJSON *sJSONcreateBool(int b);
+extern sJSON *sJSONcreateNumber(double num);
+extern sJSON *sJSONcreateString(const char *string);
+extern sJSON *sJSONcreateArray();
+extern sJSON *sJSONcreateObject();
+
+/* These utilities create an Array of count items. */
+extern sJSON *sJSONcreateIntArray(int *numbers,int count);
+extern sJSON *sJSONcreateFloatArray(float *numbers,int count);
+extern sJSON *sJSONcreateDoubleArray(double *numbers,int count);
+extern sJSON *sJSONcreateStringArray(const char **strings,int count);
+
 
 /* Append item to the specified array/object. */
 extern void sJSONaddItemToArray(sJSON *array, sJSON *item);
@@ -141,12 +128,10 @@ extern void   sJSONdeleteItemFromObject(sJSON *object,const char *string);
 extern void sJSONreplaceItemInArray(sJSON *array,int which,sJSON *newitem);
 extern void sJSONreplaceItemInObject(sJSON *object,const char *string,sJSON *newitem);
 
-#ifdef WRITE_SUPPORT_ENABLED
 #define sJSONaddNullToObject(object,name)       sJSONaddItemToObject(object, name, sJSONcreateNull())
 #define sJSONaddTrueToObject(object,name)       sJSONaddItemToObject(object, name, sJSONcreateTrue())
 #define sJSONaddFalseToObject(object,name)		sJSONaddItemToObject(object, name, sJSONcreateFalse())
 #define sJSONaddNumberToObject(object,name,n)	sJSONaddItemToObject(object, name, sJSONcreateNumber(n))
 #define sJSONaddStringToObject(object,name,s)	sJSONaddItemToObject(object, name, sJSONcreateString(s))
-#endif
 
 #endif
