@@ -67,8 +67,12 @@ struct FixedMurmurHash {
    uint32_t mHash;
    const char* mStr;
 
-   operator const uint32_t&() const {
-      return mHash;
+   FixedMurmurHash()
+       : mHash(0), mStr(0)
+   {}
+
+   bool operator==( const FixedMurmurHash lhs ) const {
+       return ( mHash == lhs.mHash ) && ( ( mStr == lhs.mStr ) || ( mStr && lhs.mStr && !strcmp( mStr, lhs.mStr ) ) );
    }
    struct ConstCharWrapper {  //neat trick taken from http://altdevblogaday.com/2011/10/27/quasi-compile-time-string-hashing/
       inline ConstCharWrapper(const char *str)

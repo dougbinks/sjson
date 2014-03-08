@@ -824,7 +824,7 @@ void   sJSONreplaceItemInObject(sJSON *object,const char *string,sJSON *newitem)
    }
    if(c) {
       newitem->nameString=sJSON_strdup(string);
-      newitem->nameHash = stringHash;
+      newitem->nameHash = stringHash.mHash;
       sJSONreplaceItemInArray(object,i,newitem);
    }
 }
