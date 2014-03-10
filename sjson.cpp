@@ -372,10 +372,10 @@ sJSON *sJSONparse(const char *value) {
 
 /* Render a sJSON item/entity/structure to text. */
 char *sJSONprintSimplified(sJSON *item)		{
-   return print_value(item,0,1,1);
+   return print_value(item,-1,1,1);
 }
 char *sJSONprint(sJSON *item)				{
-   return print_value(item,1,1,0);
+   return print_value(item,0,1,0);
 }
 char *sJSONprintUnformatted(sJSON *item)	{
    return print_value(item,0,0,0);
@@ -561,11 +561,10 @@ static const char *parse_object(sJSON *item,const char *value) {
    child->nameHash = eastl::murmurString(child->valueString);
    child->nameString = child->valueString;
    child->valueString = 0;
-   if ((*value != ':') && (*value != '=')) {
-      ep=value;      /* fail! */
-      return 0;
+   if ((*value == ':') || (*value == '=')) {
+      ++value;
    }
-	value=skip(parse_value(child,skip(value+1)));	/* skip any spacing, get the value. */
+	value=skip(parse_value(child,skip(value)));	/* skip any spacing, get the value. */
    if (!value)
       return 0;
 	
@@ -606,11 +605,12 @@ static const char *parse_object(sJSON *item,const char *value) {
 static char *print_object(sJSON *item,int depth,int fmt,int spl) {
    char **entries=0, **names=0;
    char *out=0, *ptr, *ret, *str;
-   int len=7, i=0, j;
+   int len=8, i=0, j;
    int nameqts = 1 - spl;
    char seperator = spl ? '=' : ':';
    sJSON *child = item->child;
    int numentries=0, fail=0;
+
    /* Count the number of entries. */
    while (child) {
       numentries++;
@@ -629,6 +629,7 @@ static char *print_object(sJSON *item,int depth,int fmt,int spl) {
    memset(names,0,sizeof(char*)*numentries);
 
    /* Collect all the results into our arrays: */
+   depth++;
    child=item->child;
    if (fmt)
       len+=depth;
@@ -664,7 +665,7 @@ static char *print_object(sJSON *item,int depth,int fmt,int spl) {
    /* Compose the output: */
    ptr=out;
    if( 0 == spl || depth ) {
-    *ptr++='{';if (fmt)*ptr++='\n';
+    if (fmt)*ptr++='\n';*ptr++='{';if (fmt)*ptr++='\n';
    }
    for (i=0;i<numentries;i++) {
       if (fmt)
@@ -672,6 +673,8 @@ static char *print_object(sJSON *item,int depth,int fmt,int spl) {
             *ptr++='\t';
       strcpy(ptr,names[i]);
       ptr+=strlen(names[i]);
+      if(spl)
+          *ptr++=' '; /* add space before = */
       *ptr++=seperator;
       if (fmt)
          *ptr++='\t';
@@ -695,7 +698,6 @@ static char *print_object(sJSON *item,int depth,int fmt,int spl) {
     *ptr++='}';
    }
    *ptr++=0;
-   depth++;
    return out;
 }
 
