@@ -318,33 +318,33 @@ static char *print_object(sJSON *item,int depth,int fmt, int spl);
 
 /* Utility to jump whitespace and cr/lf */
 static const char *skip(const char *in) {
-   bool checkAgain;
-   do {
-      checkAgain = false;
-      while (in && *in && (unsigned char)*in<=32)
-         ++in;
-      if(*in && (*in == '/')) {
-         if(*(in+1) && (*(in+1) == '/')) {
+   bool checkAgain = true;
+   while( in && checkAgain ) {
+        checkAgain = false;
+        while (in && *in && (unsigned char)*in<=32)
+            ++in;
+        if(*in && (*in == '/')) {
+            if(*(in+1) && (*(in+1) == '/')) {
             //skip comment till end of line..
             while(*in && ((*in != 10 && *in != 13)))
-               ++in;
+                ++in;
             //the while-loop at the beginning does the skipping for us :)
 
             checkAgain = true;      //check next line for comments
-         } else if(*(in+1) && (*(in+1) == '*')) {
+            } else if(*(in+1) && (*(in+1) == '*')) {
             //find comment end
-         find_next:
+            find_next:
             while(*in && (*in != '*'))
-               ++in;
+                ++in;
             if(*(in+1) && *(in+1) != '/') {
-               ++in;             //skip *
-               goto find_next;
+                ++in;             //skip *
+                goto find_next;
             }
             in += 2;
             checkAgain = true;
-         }
-      }
-   } while(checkAgain == true);
+            }
+        }
+   }
    return in;
 }
 
