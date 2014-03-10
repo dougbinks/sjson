@@ -73,6 +73,8 @@ extern void sJSONinitHooks(sJSON_Hooks* hooks);
 /* Supply a block of JSON, and this returns a sJSON object you can interrogate. Call sJSON_Delete when finished. */
 extern sJSON *sJSONparse(const char *value);
 
+/* Render a Simplified sJSON entity to text for transfer/storage. Free the char* when finished. */
+extern char  *sJSONprintSimplified(sJSON *item);
 /* Render a sJSON entity to text for transfer/storage. Free the char* when finished. */
 extern char  *sJSONprint(sJSON *item);
 /* Render a sJSON entity to text for transfer/storage without any formatting. Free the char* when finished. */

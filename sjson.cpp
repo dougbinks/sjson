@@ -254,7 +254,7 @@ static const char *parse_string(sJSON *item, const char *str) {
 }
 
 /* Render the cstring provided to an escaped version that can be printed. */
-static char *print_string_ptr(const char *str) {
+static char *print_string_ptr(const char *str, int qts) {
    const char *ptr;
    char *ptr2,*out;
    int len=0;
@@ -276,7 +276,9 @@ static char *print_string_ptr(const char *str) {
       return 0;
 
 	ptr2=out;ptr=str;
-	*ptr2++='\"';
+    if(qts) {
+	    *ptr2++='\"';
+    }
    while (*ptr) {
       if ((unsigned char)*ptr>31 && *ptr!='\"' && *ptr!='\\')
          *ptr2++=*ptr++;
@@ -294,22 +296,24 @@ static char *print_string_ptr(const char *str) {
 			}
 		}
 	}
-   *ptr2++='\"';
-   *ptr2++=0;
+    if(qts) {
+	    *ptr2++='\"';
+    }
+    *ptr2++=0;
 	return out;
 }
 /* Invote print_string_ptr (which is useful) on an item. */
 static char *print_string(sJSON *item)	{
-   return print_string_ptr(item->valueString);
+   return print_string_ptr(item->valueString,1);
 }
 
 /* Predeclare these prototypes. */
 static const char *parse_value(sJSON *item,const char *value);
 static const char *parse_array(sJSON *item,const char *value);
 static const char *parse_object(sJSON *item,const char *value);
-static char *print_value(sJSON *item,int depth,int fmt);
-static char *print_array(sJSON *item,int depth,int fmt);
-static char *print_object(sJSON *item,int depth,int fmt);
+static char *print_value(sJSON *item,int depth,int fmt, int spl);
+static char *print_array(sJSON *item,int depth,int fmt, int spl);
+static char *print_object(sJSON *item,int depth,int fmt, int spl);
 
 
 /* Utility to jump whitespace and cr/lf */
@@ -367,11 +371,14 @@ sJSON *sJSONparse(const char *value) {
 }
 
 /* Render a sJSON item/entity/structure to text. */
+char *sJSONprintSimplified(sJSON *item)		{
+   return print_value(item,0,1,1);
+}
 char *sJSONprint(sJSON *item)				{
-   return print_value(item,0,1);
+   return print_value(item,1,1,0);
 }
 char *sJSONprintUnformatted(sJSON *item)	{
-   return print_value(item,0,0);
+   return print_value(item,0,0,0);
 }
 
 
@@ -407,7 +414,7 @@ static const char *parse_value(sJSON *item,const char *value) {
 }
 
 /* Render a value to text. */
-static char *print_value(sJSON *item,int depth,int fmt) {
+static char *print_value(sJSON *item,int depth,int fmt, int spl) {
    char *out=0;
    if (!item)
       return 0;
@@ -417,8 +424,8 @@ static char *print_value(sJSON *item,int depth,int fmt) {
       case sJSON_True:	 out=sJSON_strdup("true"); break;
       case sJSON_Number: out=print_number(item);break;
       case sJSON_String: out=print_string(item);break;
-      case sJSON_Array:  out=print_array(item,depth,fmt);break;
-      case sJSON_Object: out=print_object(item,depth,fmt);break;
+      case sJSON_Array:  out=print_array(item,depth,fmt,spl);break;
+      case sJSON_Object: out=print_object(item,depth,fmt,spl);break;
    }
    return out;
 }
@@ -466,7 +473,7 @@ static const char *parse_array(sJSON *item,const char *value) {
 }
 
 /* Render an array to text */
-static char *print_array(sJSON *item,int depth,int fmt) {
+static char *print_array(sJSON *item,int depth,int fmt,int spl) {
    char **entries;
    char *out=0,*ptr,*ret;
    int len=5;
@@ -486,7 +493,7 @@ static char *print_array(sJSON *item,int depth,int fmt) {
    /* Retrieve all the results: */
    child=item->child;
    while (child && !fail) {
-      ret=print_value(child,depth+1,fmt);
+      ret=print_value(child,depth+1,fmt,spl);
       entries[i++]=ret;
       if (ret)
          len+=strlen(ret)+2+(fmt?1:0);
@@ -596,10 +603,12 @@ static const char *parse_object(sJSON *item,const char *value) {
 }
 
 /* Render an object to text. */
-static char *print_object(sJSON *item,int depth,int fmt) {
+static char *print_object(sJSON *item,int depth,int fmt,int spl) {
    char **entries=0, **names=0;
    char *out=0, *ptr, *ret, *str;
    int len=7, i=0, j;
+   int nameqts = 1 - spl;
+   char seperator = spl ? '=' : ':';
    sJSON *child = item->child;
    int numentries=0, fail=0;
    /* Count the number of entries. */
@@ -620,12 +629,12 @@ static char *print_object(sJSON *item,int depth,int fmt) {
    memset(names,0,sizeof(char*)*numentries);
 
    /* Collect all the results into our arrays: */
-   child=item->child;depth++;
+   child=item->child;
    if (fmt)
       len+=depth;
    while (child) {
-      names[i] = str = print_string_ptr(child->nameString);
-      entries[i++] = ret = print_value(child,depth,fmt);
+      names[i] = str = print_string_ptr(child->nameString,nameqts);
+      entries[i++] = ret = print_value(child,depth,fmt,spl);
       if (str && ret)
          len+=strlen(ret)+strlen(str)+2+(fmt?2+depth:0);
       else
@@ -653,19 +662,22 @@ static char *print_object(sJSON *item,int depth,int fmt) {
    }
 
    /* Compose the output: */
-   *out='{';ptr=out+1;if (fmt)*ptr++='\n';*ptr=0;
+   ptr=out;
+   if( 0 == spl || depth ) {
+    *ptr++='{';if (fmt)*ptr++='\n';
+   }
    for (i=0;i<numentries;i++) {
       if (fmt)
          for (j=0;j<depth;j++)
             *ptr++='\t';
       strcpy(ptr,names[i]);
       ptr+=strlen(names[i]);
-      *ptr++=':';
+      *ptr++=seperator;
       if (fmt)
          *ptr++='\t';
       strcpy(ptr,entries[i]);
       ptr+=strlen(entries[i]);
-      if (i!=numentries-1)
+      if (i!=numentries-1 && 0 == spl)
          *ptr++=',';
       if (fmt)
          *ptr++='\n';
@@ -679,8 +691,11 @@ static char *print_object(sJSON *item,int depth,int fmt) {
    if (fmt)
       for (i=0;i<depth-1;i++)
          *ptr++='\t';
-   *ptr++='}';
+   if( 0 == spl || depth ) {
+    *ptr++='}';
+   }
    *ptr++=0;
+   depth++;
    return out;
 }
 
