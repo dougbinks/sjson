@@ -750,6 +750,15 @@ void   sJSONaddItemToObject(sJSON *object, const char *string, sJSON *item)	{
    item->nameHash = eastl::murmurString(string);
    sJSONaddItemToArray(object,item);
 }
+void   sJSONaddItemToObject(sJSON *object,eastl::FixedMurmurHash stringHash, sJSON *item)	{
+   if (!item)
+      return;
+   if (item->nameString)
+      sJSON_free(item->nameString);
+   item->nameString=sJSON_strdup(stringHash.mStr);
+   item->nameHash = stringHash.mHash;
+   sJSONaddItemToArray(object,item);
+}
 void	sJSONaddItemReferenceToArray(sJSON *array, sJSON *item) {
    sJSONaddItemToArray(array,create_reference(item));
 }

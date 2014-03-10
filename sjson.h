@@ -113,6 +113,7 @@ extern sJSON *sJSONcreateStringArray(const char **strings,int count);
 /* Append item to the specified array/object. */
 extern void sJSONaddItemToArray(sJSON *array, sJSON *item);
 extern void	sJSONaddItemToObject(sJSON *object,const char *string,sJSON *item);
+extern void	sJSONaddItemToObject(sJSON *object,eastl::FixedMurmurHash stringHash,sJSON *item);
 /* Append reference to item to the specified array/object. Use this when you want to add an existing #
    sJSON to a new sJSON, but don't want to corrupt your existing sJSON. */
 extern void sJSONaddItemReferenceToArray(sJSON *array, sJSON *item);
