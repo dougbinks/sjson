@@ -665,7 +665,7 @@ static char *print_object(sJSON *item,int depth,int fmt,int spl) {
    /* Compose the output: */
    ptr=out;
    if( 0 == spl || depth ) {
-    if (fmt)*ptr++='\n';*ptr++='{';if (fmt)*ptr++='\n';
+      *ptr++='{';if (fmt)*ptr++='\n';
    }
    for (i=0;i<numentries;i++) {
       if (fmt)
