@@ -67,7 +67,8 @@ inline uint32_t murmurString(const char *buffer) {
                         h1 ^= k1;
 
 struct FixedMurmurHash {
-   uint32_t mHash;
+   uint32_t    mHash;
+   uint32_t    mLen;
    const char* mStr;
 
    FixedMurmurHash()
@@ -75,7 +76,7 @@ struct FixedMurmurHash {
    {}
 
    bool operator==( const FixedMurmurHash lhs ) const {
-       return ( mHash == lhs.mHash ) && ( ( mStr == lhs.mStr ) || ( mStr && lhs.mStr && !strcmp( mStr, lhs.mStr ) ) );
+       return ( mHash == lhs.mHash ) && ( ( mStr == lhs.mStr ) || ( mStr && lhs.mStr && ( mLen==lhs.mLen ) && !strcmp( mStr, lhs.mStr ) ) );
    }
    struct ConstCharWrapper {  //neat trick taken from http://altdevblogaday.com/2011/10/27/quasi-compile-time-string-hashing/
       inline ConstCharWrapper(const char *str)
@@ -84,13 +85,16 @@ struct FixedMurmurHash {
    };
 
    FixedMurmurHash(ConstCharWrapper str)  //for dynamic strings
-      : mHash(murmurString(str.mStr))
-      , mStr(str.mStr)
-   {}
+      : mStr(str.mStr)
+   {
+       mLen = (uint32_t)strlen( mStr );
+       mHash = murmurHash((uint8_t*)mStr, mLen);
+   }
 
 
    FixedMurmurHash(const char (&str)[2])
     : mStr(str)
+    , mLen(1)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -108,6 +112,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[3])
     : mStr(str)
+    , mLen(2)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -125,6 +130,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[4])
     : mStr(str)
+    , mLen(3)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -142,6 +148,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[5])
     : mStr(str)
+    , mLen(4)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -159,6 +166,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[6])
     : mStr(str)
+    , mLen(5)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -177,6 +185,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[7])
     : mStr(str)
+    , mLen(6)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -195,6 +204,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[8])
     : mStr(str)
+    , mLen(7)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -213,6 +223,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[9])
     : mStr(str)
+    , mLen(8)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -231,6 +242,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[10])
     : mStr(str)
+    , mLen(9)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -250,6 +262,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[11])
     : mStr(str)
+    , mLen(10)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -269,6 +282,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[12])
     : mStr(str)
+    , mLen(11)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -288,6 +302,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[13])
     : mStr(str)
+    , mLen(12)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -307,6 +322,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[14])
     : mStr(str)
+    , mLen(13)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -327,6 +343,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[15])
     : mStr(str)
+    , mLen(14)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -347,6 +364,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[16])
     : mStr(str)
+    , mLen(15)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -367,6 +385,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[17])
     : mStr(str)
+    , mLen(16)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -387,6 +406,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[18])
     : mStr(str)
+    , mLen(17)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -408,6 +428,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[19])
     : mStr(str)
+    , mLen(18)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -429,6 +450,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[20])
     : mStr(str)
+    , mLen(19)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -450,6 +472,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[21])
     : mStr(str)
+    , mLen(20)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -471,6 +494,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[22])
     : mStr(str)
+    , mLen(21)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -493,6 +517,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[23])
     : mStr(str)
+    , mLen(22)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -515,6 +540,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[24])
     : mStr(str)
+    , mLen(23)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -537,6 +563,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[25])
     : mStr(str)
+    , mLen(24)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -559,6 +586,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[26])
     : mStr(str)
+    , mLen(25)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -582,6 +610,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[27])
     : mStr(str)
+    , mLen(26)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -605,6 +634,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[28])
     : mStr(str)
+    , mLen(27)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -628,6 +658,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[29])
     : mStr(str)
+    , mLen(28)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -651,6 +682,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[30])
     : mStr(str)
+    , mLen(29)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -676,6 +708,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[31])
     : mStr(str)
+    , mLen(30)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -701,6 +734,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[32])
     : mStr(str)
+    , mLen(31)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -725,6 +759,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[33])
     : mStr(str)
+    , mLen(32)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -749,6 +784,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[34])
     : mStr(str)
+    , mLen(33)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -774,6 +810,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[35])
     : mStr(str)
+    , mLen(34)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -799,6 +836,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[36])
     : mStr(str)
+    , mLen(35)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -824,6 +862,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[37])
     : mStr(str)
+    , mLen(36)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -849,6 +888,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[38])
     : mStr(str)
+    , mLen(37)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -875,6 +915,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[39])
     : mStr(str)
+    , mLen(38)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -901,6 +942,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[40])
     : mStr(str)
+    , mLen(39)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -927,6 +969,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[41])
     : mStr(str)
+    , mLen(40)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -953,6 +996,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[42])
     : mStr(str)
+    , mLen(41)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -980,6 +1024,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[43])
     : mStr(str)
+    , mLen(42)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -1007,6 +1052,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[44])
     : mStr(str)
+    , mLen(43)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -1034,6 +1080,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[45])
     : mStr(str)
+    , mLen(44)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -1061,6 +1108,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[46])
     : mStr(str)
+    , mLen(45)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -1089,6 +1137,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[47])
     : mStr(str)
+    , mLen(46)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -1117,6 +1166,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[48])
     : mStr(str)
+    , mLen(47)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -1145,6 +1195,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[49])
     : mStr(str)
+    , mLen(48)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
@@ -1173,6 +1224,7 @@ struct FixedMurmurHash {
    }
    FixedMurmurHash(const char (&str)[50])
     : mStr(str)
+    , mLen(49)
    {
       const uint32_t seed = 0;
       uint32_t h1 = seed;
